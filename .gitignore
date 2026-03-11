@@ -74,3 +74,7 @@ app.py
 *_old.py
 old_models/
 models/
+
+# dataset
+dataset/
+dataset_cg1050/
