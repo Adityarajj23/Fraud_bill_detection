@@ -1,0 +1,11 @@
+torch
+torchvision
+torchaudio
+opencv-python
+pillow
+scikit-learn
+albumentations
+pytesseract
+fastapi
+uvicorn
+pandas
