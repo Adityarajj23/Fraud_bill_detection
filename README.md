@@ -122,7 +122,7 @@ The **70/30 weighting** prioritises visual signals while letting OCR provide a m
 Threshold-independent performance on the held-out test set (694 samples, balanced).
 The **red dot** marks the operating point at τ = 0.5.
 
-![ROC Curve and Precision-Recall Curve](results/curves.png)
+![ROC Curve and Precision-Recall Curve](assets/curves.png)
 
 | Metric | Value |
 |--------|-------|
@@ -184,6 +184,9 @@ Evaluated at threshold τ = 0.5 on 694 test samples (347 real, 347 fake):
 ```
 Fraud_bill_detection/
 │
+├── assets
+│   ├── curves.png
+│ 
 ├── dataset/
 │   ├── train/
 │   │   ├── real/
