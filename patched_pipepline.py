@@ -7,6 +7,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 import pandas as pd
 import pytesseract
 import re
+from utils import ocr_check, calculate_fraud_score
 
 # CONFIG 
 MODEL_PATH = "models/fraud_detector.pth"
@@ -44,49 +45,6 @@ transform = transforms.Compose([
                          [0.229, 0.224, 0.225])
 ])
 
-# OCR CHECK 
-def ocr_check(img: Image.Image):
-    # Downscale large images
-    MAX_OCR_WIDTH = 1000
-    if img.width > MAX_OCR_WIDTH:
-        ratio = MAX_OCR_WIDTH / img.width
-        img = img.resize((MAX_OCR_WIDTH, int(img.height * ratio)))
-
-    # Convert to grayscale
-    img = img.convert("L")
-
-    try:
-        text = pytesseract.image_to_string(img, timeout=5)
-    except RuntimeError:
-        print("⚠️ OCR timed out for this image, skipping.")
-        return 0, {"amount": [], "txn_id": [], "gst_no": [], "date": []}
-
-    amount_pattern = r"(?i)\b(?:amount|total amount|total)\b(?:\s|\n){0,2}(?:₹|rs\.?|inr|\$|usd|eur)\s?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?"
-    txn_pattern = r"\b(?:TXN|UID|TID)\d{6,12}\b"
-    gst_pattern = r"(?i)\bGST(?:IN|(?:\s*Reg)?(?:\s*No\.?)?)?[:\s]*[A-Z0-9]{6,15}\b"
-    date_pattern = r"\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4})\b"
-
-    amount_found = re.findall(amount_pattern, text)
-    txn_found = re.findall(txn_pattern, text)
-    gst_found = re.findall(gst_pattern, text)
-    date_found = re.findall(date_pattern, text)
-
-    score = 0
-    if amount_found:
-        score += 0.3
-    if txn_found or gst_found:
-        score += 0.4
-    if date_found:
-        score += 0.3
-
-    return score, {
-        "amount": amount_found,
-        "txn_id": txn_found,
-        "gst_no": gst_found,
-        "date": date_found
-    }
-
-
 # TEST LOOP 
 y_true, y_pred, results = [], [], []
 
@@ -112,9 +70,8 @@ for label in ["real", "fake"]:
         # OCR check
         ocr_score, ocr_data = ocr_check(img)
 
-        # Combined fraud score
-        combined_score = (0.7 * img_fake_score) + (0.3 * (1 - ocr_score))
-        prediction = "fake" if combined_score > 0.5 else "real"
+        # Fraud Score Calculation
+        combined_score, prediction = calculate_fraud_score(img_fake_score, ocr_score, threshold=0.65)
 
         y_true.append(label)
         y_pred.append(prediction)

@@ -269,6 +269,109 @@ python scripts/threshold.py
 ```
 Sweeps thresholds and shows the precision/recall tradeoff — use this to find the optimal τ for your deployment context.
 
+### 6. Deploy as REST API
+```bash
+uvicorn app:app --reload
+```
+Launches the FastAPI server for real-time fraud detection. Access the interactive API documentation at `http://127.0.0.1:8000/docs`.
+
+---
+
+## 🚀 REST API Deployment
+
+### Running the API
+
+1. **Activate the virtual environment** (if using `venv`):
+   ```powershell
+   & ./venv/Scripts/Activate.ps1
+   ```
+
+2. **Start the FastAPI server**:
+   ```bash
+   uvicorn app:app --reload
+   ```
+   - By default, the server runs on `http://127.0.0.1:8000`
+   - `--reload` enables auto-reloading during development
+
+3. **Access Swagger UI** (interactive API documentation):
+   - Open your browser and navigate to: `http://127.0.0.1:8000/docs`
+   - Or use the ReDoc alternative: `http://127.0.0.1:8000/redoc`
+
+### API Features
+
+#### Endpoint: `POST /predict`
+
+**Description:** Upload an image file and get a fraud detection prediction.
+
+**Parameters:**
+- `file` (multipart/form-data): Image file to analyze (JPG, PNG, JPEG)
+- `threshold` (query parameter, optional): Fraud detection threshold
+  - Allowed values: `0.5` (strict, for banking) or `0.65` (default, for general use)
+  - Default: `0.65`
+
+**Response:**
+```json
+{
+  "image_model_score": 0.85,
+  "ocr_score": 0.7,
+  "combined_fraud_score": 0.71,
+  "prediction": "fake",
+  "threshold_used": 0.65,
+  "ocr_data": {
+    "amount": ["₹500.00"],
+    "txn_id": ["TXN123456"],
+    "gst_no": ["27AABCT1234G1Z5"],
+    "date": ["15-04-2024"]
+  }
+}
+```
+
+**Response Fields:**
+- `image_model_score`: EfficientNet-B0 confidence score (0–1) for fake classification
+- `ocr_score`: OCR-based validation score (0–1) based on detected fields
+- `combined_fraud_score`: Fused score using the formula: `0.7 × image_model_score + 0.3 × (1 − ocr_score)`
+- `prediction`: Classification result — `"real"` or `"fake"`
+- `threshold_used`: The threshold applied for this prediction
+- `ocr_data`: Extracted OCR fields (amount, transaction ID, GST number, date)
+
+#### Endpoint: `GET /`
+
+**Description:** Health check endpoint to verify the API is running.
+
+**Response:**
+```json
+{
+  "message": "Fraud detection API is running. Use POST /predict to send an image."
+}
+```
+
+### Use Case: Threshold Selection
+
+| Use Case | Threshold | Rationale |
+|----------|-----------|-----------|
+| 🏦 **Banking / Financial** | `0.5` | Strict — prioritize fraud detection over false alarms |
+| 🏫 **Education / General** | `0.65` | Balanced — reasonable trade-off between precision and recall |
+
+**Example cURL Request (Strict Banking):**
+```bash
+curl -X POST "http://127.0.0.1:8000/predict?threshold=0.5" \
+  -F "file=@path/to/image.jpg"
+```
+
+**Example cURL Request (Default General Use):**
+```bash
+curl -X POST "http://127.0.0.1:8000/predict" \
+  -F "file=@path/to/image.jpg"
+```
+
+### Code Reusability
+
+The API and offline evaluation pipeline (`patched_pipeline.py`) share common utilities through `utils.py`:
+- `ocr_check()` — OCR field extraction and validation
+- `calculate_fraud_score()` — Score fusion and prediction logic
+
+This ensures consistency across both deployment modes and eliminates code duplication.
+
 ---
 
 ## 🔮 Next Steps
