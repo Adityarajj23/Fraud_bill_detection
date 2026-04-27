@@ -70,7 +70,6 @@ Thumbs.db
 htmlcov/
 
 # Project specific
-app.py
 *_old.py
 old_models/
 models/

@@ -186,6 +186,9 @@ Fraud_bill_detection/
 │
 ├── assets
 │   ├── curves.png
+│   └── sample_dataset/           # Sample images for API testing
+│       ├── real/                  # Sample real receipt
+│       └── fake/                  # Sample fake receipt
 │ 
 ├── dataset/
 │   ├── train/
@@ -374,6 +377,27 @@ The API and offline evaluation pipeline (`patched_pipeline.py`) share common uti
 - `calculate_fraud_score()` — Score fusion and prediction logic
 
 This ensures consistency across both deployment modes and eliminates code duplication.
+
+### Testing with Sample Images
+
+Quick-start test data is included in the repository for easy API validation:
+
+- **Location:** `assets/sample_dataset/`
+  - `real/` — contains 1 sample real receipt
+  - `fake/` — contains 1 sample fake receipt
+
+**To test via Swagger UI:**
+1. Navigate to `http://127.0.0.1:8000/docs`
+2. Click **"Try it out"** on the `POST /predict` endpoint
+3. Click **"Choose File"** and select an image from `assets/sample_dataset/real/` or `assets/sample_dataset/fake/`
+4. (Optional) Adjust the `threshold` parameter (`0.5` or `0.65`)
+5. Click **"Execute"** to see the prediction and OCR extraction
+
+**Example cURL test with sample image:**
+```bash
+curl -X POST "http://127.0.0.1:8000/predict?threshold=0.65" \
+  -F "file=@assets/sample_dataset/real/sample_real.jpg"
+```
 
 ---
 
