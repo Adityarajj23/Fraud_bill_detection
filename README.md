@@ -221,6 +221,8 @@ Fraud_bill_detection/
 │   ├── tamper_with_ocr.py      # Generates fake bills by editing OCR fields
 │   └── split_val.py            # Splits train into validation
 │
+├── app.py                      # FastAPI application for REST API deployment
+├── utils.py                    # Shared utilities (OCR check, fraud score calculation)
 ├── tampering_log.csv           # Log of edits for synthetic fake receipts
 ├── tampering_log_test.csv      # Log for test tampering run
 ├── requirements.txt
@@ -383,8 +385,8 @@ This ensures consistency across both deployment modes and eliminates code duplic
 Quick-start test data is included in the repository for easy API validation:
 
 - **Location:** `assets/sample_dataset/`
-  - `real/` — contains 1 sample real receipt
-  - `fake/` — contains 1 sample fake receipt
+  - `real/` — contains 2 sample real receipt
+  - `fake/` — contains 2 sample fake receipt
 
 **To test via Swagger UI:**
 1. Navigate to `http://127.0.0.1:8000/docs`
