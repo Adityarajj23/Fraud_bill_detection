@@ -407,7 +407,6 @@ curl -X POST "http://127.0.0.1:8000/predict?threshold=0.65" \
 - [ ] **Multilingual receipts** — expand dataset to improve generalisation across languages and formats
 - [ ] **Baseline benchmarking** — compare against ResNet-50, MobileNet, and ViT classifiers
 - [ ] **Threshold auto-tuning** — integrate F-beta optimisation directly into the training loop
-- [ ] **FastAPI deployment** — wrap inference as a REST endpoint for production use
 
 ---
 
