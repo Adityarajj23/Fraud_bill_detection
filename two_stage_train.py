@@ -45,7 +45,7 @@ def get_loader(data_dir, transform, shuffle=True):
 
 # ===== MODEL SETUP =====
 def build_model():
-    model = models.efficientnet_b0(pretrained=True)
+    model = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.DEFAULT)
     for param in model.parameters():
         param.requires_grad = False
     num_features = model.classifier[1].in_features
@@ -80,9 +80,9 @@ def train_stage(model, train_loader, val_loader=None, epochs=3, lr=1e-3, class_w
                     outputs = model(inputs)
                     val_corrects += (outputs.argmax(1) == labels).sum().item()
             val_acc = val_corrects / len(val_loader.dataset)
-            print(f"📊 Epoch {epoch+1}/{epochs} - Train Acc: {train_acc:.4f} - Val Acc: {val_acc:.4f}")
+            print(f"Epoch {epoch+1}/{epochs} - Train Acc: {train_acc:.4f} - Val Acc: {val_acc:.4f}")
         else:
-            print(f"📊 Epoch {epoch+1}/{epochs} - Train Acc: {train_acc:.4f}")
+            print(f"Epoch {epoch+1}/{epochs} - Train Acc: {train_acc:.4f}")
 
     return model
 
